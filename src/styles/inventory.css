@@ -1,0 +1,18 @@
+.button {
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #03c9d7;
+  border: solid 2px #03c9d7;
+  color: white;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+}
+.button:active {
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: white;
+  color: #03c9d7;
+  border: solid 2px #03c9d7;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+}
