@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { FiSettings } from "react-icons/fi";
 import { TooltipComponent } from "@syncfusion/ej2-react-popups";
 // import "./bootstrap/dist/css/bootstrap.min.css";
+import "./styles/inventory.css";
 
 import { Navbar, Footer, Sidebar, ThemeSettings } from "./components";
 import {
@@ -27,6 +28,7 @@ import "./App.css";
 
 import { useStateContext } from "./contexts/ContextProvider";
 import Inventory from "./pages/Inventory";
+import Transactions from "./pages/transactions";
 
 const App = () => {
   const {
@@ -50,7 +52,7 @@ const App = () => {
 
   return (
     <div
-      className={currentMode === "Dark" ? "dark" : ""}
+      className={currentMode === "Dark" ? "dark" : "widthControl"}
       style={{ maxWidth: "100%" }}
     >
       <BrowserRouter>
@@ -68,18 +70,18 @@ const App = () => {
             </TooltipComponent>
           </div>
           {activeMenu ? (
-            <div className="w-72 fixed sidebar dark:bg-secondary-dark-bg bg-white ">
+            <div className="w-72 z-50 fixed sidebar dark:bg-secondary-dark-bg bg-white ">
               <Sidebar />
             </div>
           ) : (
-            <div className="w-0 dark:bg-secondary-dark-bg">
+            <div className="w-0 z-50 dark:bg-secondary-dark-bg">
               <Sidebar />
             </div>
           )}
           <div
             className={
               activeMenu
-                ? "dark:bg-main-dark-bg  bg-main-bg min-h-screen md:ml-72 w-full  "
+                ? "dark:bg-main-dark-bg  bg-main-bg min-h-screen md:ml-72 widthControl"
                 : "bg-main-bg dark:bg-main-dark-bg  w-full min-h-screen flex-2 "
             }
           >
@@ -99,6 +101,7 @@ const App = () => {
                 <Route path="/employees" element={<Employees />} />
                 <Route path="/customers" element={<Customers />} />
                 <Route path="/inventory" element={<Inventory />} />
+                <Route path="/transactions" element={<Transactions />} />
 
                 {/* apps  */}
                 <Route path="/kanban" element={<Kanban />} />

@@ -50,7 +50,6 @@ const Inventory = () => {
     msg: "Item added to the record.",
     title: "Success!",
   });
-
   const [addItemData, setAddItemData] = useState({
     name: "",
     unit: "",
@@ -59,7 +58,6 @@ const Inventory = () => {
     expiry: " ",
     vendor: "",
   });
-
   const [addModalErrors, setAddModalErrors] = useState({
     nameError: "",
     nameErrorStatus: false,
@@ -68,7 +66,6 @@ const Inventory = () => {
     stockError: "",
     stockErrorStatus: false,
   });
-
   const [editItemData, setEditItemData] = useState({
     id: "",
     name: "",
@@ -78,22 +75,77 @@ const Inventory = () => {
     expiry: " ",
     vendor: "",
   });
-  const [itemUnit, setItemUnit] = useState("");
-  const [itemStock, setItemStock] = useState("");
-  const [itemThresholdQty, setItemThresholdQty] = useState("");
-  const [itemExpiry, setItemExpiry] = useState(" ");
-  const [itemVendor, setItemVendor] = useState("");
-  const [selectItems, setSelectItems] = useState("");
+  const [editModalErrors, setEditModalErrors] = useState({
+    nameError: "",
+    nameErrorStatus: false,
+    unitError: "",
+    unitErrorStatus: false,
+    stockError: "",
+    stockErrorStatus: false,
+  });
+  const [deletItemData, setDeletItemData] = useState({
+    dataObj: {},
+    deleteField: "",
+    disabled: true,
+  });
+  const [editSelectItems, setEditSelectItems] = useState("");
+  const [deleteSelectItems, setDeleteSelectItems] = useState("");
   const selectionsettings = { persistSelection: true };
   const toolbarOptions = ["Search"];
 
-  function addRecord() {
+  function getTodayDate() {
     let today = new Date();
     let dd = String(today.getDate()).padStart(2, "0");
     let mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
     let yyyy = today.getFullYear();
-    today = mm + "/" + dd + "/" + yyyy;
+    today = yyyy + "-" + mm + "-" + dd;
+    return today;
+  }
 
+  function clearStates() {
+    setAddItemData({
+      name: "",
+      unit: "",
+      stock_qty: "",
+      min_qty: "",
+      expiry: " ",
+      vendor: "",
+    });
+    setAddModalErrors({
+      nameError: "",
+      nameErrorStatus: false,
+      unitError: "",
+      unitErrorStatus: false,
+      stockError: "",
+      stockErrorStatus: false,
+    });
+    setEditItemData({
+      id: "",
+      name: "",
+      unit: "",
+      stock_qty: "",
+      min_qty: "",
+      expiry: " ",
+      vendor: "",
+    });
+    setEditModalErrors({
+      nameError: "",
+      nameErrorStatus: false,
+      unitError: "",
+      unitErrorStatus: false,
+      stockError: "",
+      stockErrorStatus: false,
+    });
+    setEditSelectItems("");
+    setDeleteSelectItems("");
+    setDeletItemData({
+      dataObj: {},
+      deleteField: "",
+      disabled: true,
+    });
+  }
+
+  function addRecord() {
     const { name, unit, stock_qty } = addItemData;
 
     if (name === "") {
@@ -131,7 +183,7 @@ const Inventory = () => {
         stock_qty: addItemData.stock_qty,
         threshold_qty: addItemData.min_qty,
         exp_date: addItemData.expiry,
-        last_update: today,
+        last_update: getTodayDate(),
         update_by: "NAN",
         vendor: addItemData.vendor,
       };
@@ -140,18 +192,98 @@ const Inventory = () => {
         if (res.data) {
           alertData = {
             title: "Success!",
-            msg: "Item added successfully to the record.",
+            msg: "Item Added Successfully.",
           };
           setAlertStatus({
             type: "success",
           });
           showAlert();
           loadData();
+          clearStates();
         }
       });
     }
   }
 
+  function editRecord() {
+    //Validation on the fields
+    const { id, name, unit, stock_qty, min_qty, vendor, expiry } = editItemData;
+    console.log(name, unit, stock_qty);
+
+    if (name === "") {
+      setEditModalErrors((prev) => {
+        return {
+          ...prev,
+          nameError: "Field is Required!",
+          nameErrorStatus: true,
+        };
+      });
+    }
+    if (unit === "") {
+      setEditModalErrors((prev) => {
+        return {
+          ...prev,
+          unitError: "Field is Required!",
+          unitErrorStatus: true,
+        };
+      });
+    }
+    if (stock_qty === "") {
+      setEditModalErrors((prev) => {
+        return {
+          ...prev,
+          stockError: "Field is Required!",
+          stockErrorStatus: true,
+        };
+      });
+    }
+
+    if (id !== "" && name !== "" && unit !== "" && stock_qty !== "") {
+      let data = {
+        item_name: name,
+        unit,
+        stock_qty,
+        threshold_qty: min_qty,
+        exp_date: expiry,
+        last_update: getTodayDate(),
+        update_by: "NAN",
+        vendor,
+      };
+      service.updateInventoryItem(id, data).then((res) => {
+        setEditModal(false);
+        if (res.data) {
+          alertData = {
+            title: "Success!",
+            msg: "Item Updated Successfully.",
+          };
+          setAlertStatus({
+            type: "success",
+          });
+          showAlert();
+          loadData();
+          clearStates();
+        }
+      });
+    }
+  }
+
+  function deleteRecord() {
+    service.deleteInventoryItem(deletItemData.dataObj.Id).then((res) => {
+      setDeleteModal(false);
+      if (res.data) {
+        alertData = {
+          title: "Success!",
+          msg: "Item Deleted Successfully.",
+        };
+        setAlertStatus({
+          type: "error",
+        });
+        showAlert();
+        loadData();
+        clearStates();
+      }
+    });
+  }
   function showAlert() {
     setAlertStatus({ visible: true });
     setTimeout(() => {
@@ -258,6 +390,9 @@ const Inventory = () => {
       <div className="m-2"></div>
       <GridComponent
         dataSource={data}
+        enableAdaptiveUI={false}
+        allowFiltering={true}
+        filterSettings={{ type: "Menu", ignoreAccent: true }}
         enableHover={false}
         allowPaging
         pageSettings={{ pageCount: 5 }}
@@ -398,7 +533,10 @@ const Inventory = () => {
                 color: "#fff",
                 marginTop: "10px",
               }}
-              onClick={() => {}}
+              onClick={() => {
+                setAddModal(false);
+                clearStates();
+              }}
             >
               Cancel
             </Button>
@@ -433,9 +571,9 @@ const Inventory = () => {
                 renderInput={(params) => (
                   <TextField {...params} label="Items" />
                 )}
-                value={selectItems}
+                value={editSelectItems}
                 onChange={(e, value) => {
-                  setSelectItems(value);
+                  setEditSelectItems(value);
                   let itemObj = data.find((item) => {
                     if (item.ItemName === value) return item;
                   });
@@ -447,7 +585,6 @@ const Inventory = () => {
                     min_qty: itemObj.Threshold,
                     expiry: itemObj.ExpiryDate,
                     vendor: itemObj.Vendor,
-                    // TODO
                   });
                 }}
               />
@@ -455,7 +592,6 @@ const Inventory = () => {
             <br></br>
             <p>Edit item details</p>
             <br></br>
-            {/* TODO */}
             <TextField
               id="item_id"
               required
@@ -467,6 +603,8 @@ const Inventory = () => {
             <TextField
               id="item_name"
               required
+              error={editModalErrors.nameErrorStatus}
+              helperText={editModalErrors.nameError}
               label="Item Name"
               margin="dense"
               value={editItemData.name}
@@ -480,6 +618,8 @@ const Inventory = () => {
               id="quty_unit"
               required
               select
+              error={editModalErrors.unitErrorStatus}
+              helperText={editModalErrors.unitError}
               value={editItemData.unit}
               onChange={(e) => {
                 setEditItemData((prev) => {
@@ -498,6 +638,8 @@ const Inventory = () => {
             <TextField
               id="stock_quantity"
               required
+              error={editModalErrors.stockErrorStatus}
+              helperText={editModalErrors.stockError}
               label="Stock Quantity"
               margin="dense"
               type="number"
@@ -545,8 +687,8 @@ const Inventory = () => {
               type="text"
             />
             <br />
-            <Button variant="contained" color="primary" onClick={addRecord}>
-              Edit Item
+            <Button variant="contained" color="primary" onClick={editRecord}>
+              Update
             </Button>
             <Button
               variant="contained"
@@ -556,7 +698,10 @@ const Inventory = () => {
                 color: "#fff",
                 marginTop: "10px",
               }}
-              onClick={() => {}}
+              onClick={() => {
+                setEditModal(false);
+                clearStates();
+              }}
             >
               Cancel
             </Button>
@@ -578,7 +723,7 @@ const Inventory = () => {
             paddingRight: "20px",
           }}
         >
-          <DialogTitle align="center">Edit Inventory Item</DialogTitle>
+          <DialogTitle align="center">Delete Inventory Item</DialogTitle>
           <div style={{ width: "500px" }}></div>
           <p>Search the item name to delete record.</p>
           <br></br>
@@ -589,9 +734,13 @@ const Inventory = () => {
                 renderInput={(params) => (
                   <TextField {...params} label="Items" />
                 )}
-                value={selectItems}
+                value={deleteSelectItems}
                 onChange={(e, value) => {
-                  setSelectItems(value);
+                  setDeleteSelectItems(value);
+                  let itemObj = data.find((item) => {
+                    if (item.ItemName === value) return item;
+                  });
+                  setDeletItemData((prev) => ({ ...prev, dataObj: itemObj }));
                 }}
               />
             </Stack>
@@ -603,15 +752,24 @@ const Inventory = () => {
               required
               label=""
               margin="dense"
-              value={""}
-              onChange={(e) => {}}
+              value={deletItemData.deleteField}
+              onChange={(e) => {
+                setDeletItemData((prev) => {
+                  return { ...prev, deleteField: e.target.value };
+                });
+                if (e.target.value === "DELETE" && deleteSelectItems !== "") {
+                  setDeletItemData((prev) => ({ ...prev, disabled: false }));
+                } else {
+                  setDeletItemData((prev) => ({ ...prev, disabled: true }));
+                }
+              }}
             />
             <br />
             <Button
               variant="contained"
               color="error"
-              onClick={addRecord}
-              disabled
+              onClick={deleteRecord}
+              disabled={deletItemData.disabled}
             >
               Delete Item
             </Button>
@@ -623,7 +781,10 @@ const Inventory = () => {
                 color: "#fff",
                 marginTop: "10px",
               }}
-              onClick={() => {}}
+              onClick={() => {
+                setDeleteModal(false);
+                clearStates();
+              }}
             >
               Cancel
             </Button>
@@ -657,10 +818,8 @@ const Inventory = () => {
                 renderInput={(params) => (
                   <TextField {...params} label="Category List" />
                 )}
-                value={selectItems}
-                onChange={(e, value) => {
-                  setSelectItems(value);
-                }}
+                value={"Select"}
+                onChange={(e, value) => {}}
               />
             </Stack>
             <br />

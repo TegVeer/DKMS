@@ -26,7 +26,34 @@ async function addInventoryItem(body) {
   return data;
 }
 
+async function updateInventoryItem(id, body) {
+  let response = await fetch(`${url}inventory-items/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+    body: JSON.stringify({ data: body }),
+  });
+  let data = await response.json();
+  return data;
+}
+
+async function deleteInventoryItem(id) {
+  console.log(id);
+  let response = await fetch(`${url}inventory-items/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: token,
+    },
+  });
+  let data = await response.json();
+  return data;
+}
+
 export default {
   getInventoryData,
   addInventoryItem,
+  updateInventoryItem,
+  deleteInventoryItem,
 };
