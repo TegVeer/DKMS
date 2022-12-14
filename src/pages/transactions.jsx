@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useStateContext } from "../contexts/ContextProvider";
 import {
   GridComponent,
   ColumnsDirective,
@@ -26,6 +27,8 @@ import {
   FormControlLabel,
   Radio,
   IconButton,
+  Stack,
+  Autocomplete,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -36,6 +39,7 @@ const transcationType = [
 ];
 
 const Transactions = () => {
+  const { inventoryData } = useStateContext();
   const selectionsettings = { persistSelection: true };
   const [modalStatus, setModalStatus] = useState(false);
   const [rowsData, setRowsData] = useState({
@@ -50,10 +54,14 @@ const Transactions = () => {
     ],
   });
 
+  useEffect(() => {
+    console.log("Inventory Data:", inventoryData);
+  }, []);
+
   function addRow() {
     let newData = rowsData.data;
     newData.push({
-      id: rowsData.rowNumber + 1,
+      id: "",
       name: "",
       qty: "",
       price: "",
@@ -168,24 +176,32 @@ const Transactions = () => {
                       alignItems: "center",
                     }}
                   >
-                    <TextField
-                      id="item"
-                      required
+                    <Stack
+                      spacing={2}
+                      width="100%"
                       style={{ paddingRight: "5px" }}
-                      error={false}
-                      helperText={""}
-                      label="Item"
-                      margin="dense"
-                      value={rowsData.data[index].name}
-                      onChange={(e) => {
-                        let newData = rowsData.data;
-                        newData[index].name = e.target.value;
-                        setRowsData({
-                          rowNumber: rowsData.rowNumber,
-                          data: newData,
-                        });
-                      }}
-                    />
+                    >
+                      <Autocomplete
+                        options={inventoryData.map((item) => item.ItemName)}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Items" />
+                        )}
+                        value={rowsData.data[index].name}
+                        onChange={(e, value) => {
+                          let matchedRecord = inventoryData.find((e) => {
+                            if (e.ItemName === value) return e;
+                          });
+                          console.log(rowsData);
+                          let newData = rowsData.data;
+                          newData[index].name = value;
+                          newData[index].id = matchedRecord?.Id;
+                          setRowsData({
+                            rowNumber: rowsData.rowNumber,
+                            data: newData,
+                          });
+                        }}
+                      />
+                    </Stack>
                     <TextField
                       id="qty"
                       required
@@ -228,24 +244,32 @@ const Transactions = () => {
                     alignItems: "center",
                   }}
                 >
-                  <TextField
-                    id="item"
-                    required
+                  <Stack
+                    spacing={2}
+                    width="100%"
                     style={{ paddingRight: "5px" }}
-                    error={false}
-                    helperText={""}
-                    label="Item"
-                    margin="dense"
-                    value={rowsData.data[index].name}
-                    onChange={(e) => {
-                      let newData = rowsData.data;
-                      newData[index].name = e.target.value;
-                      setRowsData({
-                        rowNumber: rowsData.rowNumber,
-                        data: newData,
-                      });
-                    }}
-                  />
+                  >
+                    <Autocomplete
+                      options={inventoryData.map((item) => item.ItemName)}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Items" />
+                      )}
+                      value={rowsData.data[index].name}
+                      onChange={(e, value) => {
+                        let matchedRecord = inventoryData.find((e) => {
+                          if (e.ItemName === value) return e;
+                        });
+                        console.log(rowsData);
+                        let newData = rowsData.data;
+                        newData[index].name = value;
+                        newData[index].id = matchedRecord?.Id;
+                        setRowsData({
+                          rowNumber: rowsData.rowNumber,
+                          data: newData,
+                        });
+                      }}
+                    />
+                  </Stack>
                   <TextField
                     id="qty"
                     required

@@ -13,7 +13,7 @@ import {
 } from "@syncfusion/ej2-react-grids";
 import service from "../utils/service";
 import "../styles/inventory.css";
-import { inventoryData, inventoryGrid } from "../data/dummy";
+import { inventoryGrid } from "../data/dummy";
 import { Header } from "../components";
 import {
   MenuItem,
@@ -26,6 +26,7 @@ import {
   Alert,
   AlertTitle,
 } from "@mui/material";
+import { useStateContext } from "../contexts/ContextProvider";
 
 const qtyUnits = [
   { value: "pkt", label: "pkt" },
@@ -39,6 +40,7 @@ const qtyUnits = [
 
 let alertData = { title: "", msg: "" };
 const Inventory = () => {
+  const { setInventoryData } = useStateContext();
   const [data, setData] = useState([]);
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
@@ -316,6 +318,7 @@ const Inventory = () => {
         });
       });
       setData(dataList);
+      setInventoryData(dataList);
     });
   }
   useEffect(() => {
