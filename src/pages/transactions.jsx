@@ -58,7 +58,16 @@ const Transactions = () => {
     ],
   });
 
-  useEffect(() => { console.log("inventoryOptions",inventoryOptions) }, []);
+  useEffect(() => {
+    console.log("inventoryOptions", inventoryOptions);
+  }, []);
+
+  function getItemNameList() {
+    if (inventoryData.length > 0) {
+      let nameList = inventoryData.map((item) => item.ItemName);
+      setInventoryOptions(nameList);
+    }
+  }
 
   function addRow() {
     let newData = rowsData.data;
@@ -89,7 +98,7 @@ const Transactions = () => {
         color="info"
         onClick={() => {
           setModalStatus(true);
-          setInventoryOptions(inventoryData)
+          getItemNameList();
         }}
       >
         Create Transaction
@@ -191,12 +200,13 @@ const Transactions = () => {
                         )}
                         value={rowsData.data[index].name}
                         onChange={(e, value) => {
-                          let matchedRecord = inventoryData.find((e) => {
-                            if (e.ItemName === value) return e;
+                          // console.table(inventoryOptions);
+                          let matchedRecord = inventoryData.find((item) => {
+                            if (item.ItemName === value) return item;
                           });
-                          let newOptions = inventoryOptions.find(e=>{
-                            if(e.ItemName !== value) return e;
-                          })
+                          let newOptions = inventoryOptions.find((item) => {
+                            if (item !== value) return item;
+                          });
                           let newData = rowsData.data;
                           newData[index].name = value;
                           newData[index].id = matchedRecord?.Id;
@@ -256,7 +266,7 @@ const Transactions = () => {
                     style={{ paddingRight: "5px" }}
                   >
                     <Autocomplete
-                      options={inventoryOptions.map((item) => item.ItemName)}
+                      options={inventoryOptions}
                       renderInput={(params) => (
                         <TextField {...params} label="Items" />
                       )}
@@ -265,9 +275,9 @@ const Transactions = () => {
                         let matchedRecord = inventoryData.find((e) => {
                           if (e.ItemName === value) return e;
                         });
-                        let newOptions = inventoryOptions.find(e=>{
-                          if(e.ItemName !== value) return e;
-                        })
+                        let newOptions = inventoryOptions.find((e) => {
+                          if (e !== value) return e;
+                        });
                         let newData = rowsData.data;
                         newData[index].name = value;
                         newData[index].id = matchedRecord?.Id;
