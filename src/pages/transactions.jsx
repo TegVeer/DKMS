@@ -213,8 +213,12 @@ const Transactions = () => {
                           console.log(e);
                         }}
                         onChange={(e, value) => {
-                          let matchedRecord = inventoryData.find((e) => {
-                            if (e.ItemName === value) return e;
+                          // console.table(inventoryOptions);
+                          let matchedRecord = inventoryData.find((item) => {
+                            if (item.ItemName === value) return item;
+                          });
+                          let newOptions = inventoryOptions.find((item) => {
+                            if (item !== value) return item;
                           });
                           let newData = rowsData.data;
                           newData[index].name = value;
