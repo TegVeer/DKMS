@@ -43,6 +43,7 @@ import product5 from "./product5.jpg";
 import product6 from "./product6.jpg";
 import product7 from "./product7.jpg";
 import product8 from "./product8.jpg";
+import TnxTypeSymbol from "../bitsComponents/tnxTypeSymbol";
 
 export const gridOrderImage = (props) => (
   <div>
@@ -616,18 +617,18 @@ export let childdata = [
 ];
 export let corsalData = [
   {
-    EmployeeID: 1,
+    EmployeeID: 1, //!
     LastName: "Davolio",
-    FirstName: "Nancy",
+    FirstName: "Nancy", //!
     Title: "Sales Representative",
     TitleOfCourtesy: "Ms.",
     BirthDate: new Date(-664743600000),
     HireDate: new Date(704692800000),
     Address: "507 - 20th Ave. E.Apt. 2A",
-    City: "Seattle",
+    City: "Seattle", //!
     Region: "WA",
     PostalCode: "98122",
-    Country: "USA",
+    Country: "USA", //!
     HomePhone: "(206) 555-9857",
     Extension: "5467",
     Photo: { Length: 21626 },
@@ -1205,7 +1206,6 @@ export const customersGrid = [
     isPrimaryKey: true,
   },
 ];
-
 export const employeesGrid = [
   {
     headerText: "Employee",
@@ -1273,6 +1273,10 @@ export const links = [
       },
       {
         name: "customers",
+        icon: <RiContactsLine />,
+      },
+      {
+        name: "employees",
         icon: <RiContactsLine />,
       },
     ],

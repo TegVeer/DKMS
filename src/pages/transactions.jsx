@@ -12,8 +12,7 @@ import {
   Sort,
   Filter,
 } from "@syncfusion/ej2-react-grids";
-
-import { customersData, customersGrid } from "../data/dummy";
+import service from "../utils/service";
 import { Header } from "../components";
 import {
   Button,
@@ -32,6 +31,67 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import TnxTypeSymbol from "../bitsComponents/tnxTypeSymbol";
+const transactionsGrid = [
+  { field: "tnxId", headerText: "Tnx ID", width: "100", textAlign: "Center" },
+  {
+    headerText: "Tnx Type",
+    width: "150",
+    template: TnxTypeSymbol,
+    textAlign: "Center",
+  },
+  {
+    field: "desc",
+    headerText: "Description",
+    width: "150",
+    textAlign: "Center",
+  },
+  {
+    field: "by",
+    headerText: "Tnx By",
+    width: "130",
+    textAlign: "Center",
+  },
+  {
+    field: "date",
+    headerText: "Date",
+    width: "100",
+    textAlign: "Center",
+  },
+  {
+    field: "totalPrice",
+    headerText: "Total Price",
+    width: "100",
+    textAlign: "Center",
+  },
+];
+
+const transactionsData = [
+  {
+    tnxId: 1001,
+    desc: "MorningPrasadam",
+    type: "OUT",
+    date: "20/12/2022",
+    by: "Tegveer Singh",
+    totalPrice: "Rs.500",
+  },
+  {
+    tnxId: 1002,
+    desc: "Ration Shopping",
+    type: "IN",
+    date: "20/12/2022",
+    by: "Tegveer Singh",
+    totalPrice: "Rs.4232",
+  },
+  {
+    tnxId: 1003,
+    desc: "Return from FFL",
+    type: "IN",
+    date: "20/12/2022",
+    by: "Tegveer Singh",
+    totalPrice: "Rs.5800",
+  },
+];
 
 const transcationType = [
   { label: "IN", value: "IN" },
@@ -57,8 +117,19 @@ const Transactions = () => {
       },
     ],
   });
+  const [tableData, setTableData] = useState([
+    {
+      type: "IN",
+      desc: "Something here",
+      tnxBy: "Tegveer",
+      date: "Some date",
+      totalPrice: "5000",
+    },
+  ]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    service.getInventoryTnx();
+  }, []);
   useEffect(() => {
     console.info("set called");
     setListItems();
@@ -114,16 +185,50 @@ const Transactions = () => {
         Create Transaction
       </Button>
       <GridComponent
-        dataSource={[]}
+        dataSource={transactionsData} //TODO
         enableHover={false}
         allowPaging
         pageSettings={{ pageCount: 5 }}
         selectionSettings={selectionsettings}
         toolbar={["Search"]}
         allowSorting
+        childGrid={{
+          columns: [
+            {
+              field: "itemId",
+              headerText: "ID",
+              textAlign: "Center",
+              width: "50",
+            },
+            {
+              field: "name",
+              headerText: "Item Name",
+              textAlign: "Center",
+              width: "100",
+            },
+            {
+              field: "qty",
+              headerText: "Quantity",
+              width: "80",
+            },
+            { field: "price", headerText: "Unit Price", width: "80" },
+            { field: "sumPrice", headerText: "Sum Price", width: "100" },
+          ],
+          queryString: "tnxId",
+          dataSource: [
+            {
+              tnxId: 1002,
+              itemId: 1,
+              name: "Rice",
+              qty: "50",
+              price: "40",
+              sumPrice: 2000,
+            },
+          ],
+        }}
       >
         <ColumnsDirective>
-          {customersGrid.map((item, index) => (
+          {transactionsGrid.map((item, index) => (
             <ColumnDirective key={index} {...item} />
           ))}
         </ColumnsDirective>
@@ -351,7 +456,7 @@ const Transactions = () => {
                 marginTop: "10px",
               }}
               onClick={() => {
-                // setEditModal(false);
+                setModalStatus(false);
                 // clearStates();
               }}
             >
