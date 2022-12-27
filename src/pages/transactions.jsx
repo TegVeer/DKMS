@@ -31,13 +31,13 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import TnxTypeSymbol from "../bitsComponents/tnxTypeSymbol";
+import TxnTypeSymbol from "../bitsComponents/tnxTypeSymbol";
 const transactionsGrid = [
-  { field: "tnxId", headerText: "Tnx ID", width: "100", textAlign: "Center" },
+  { field: "txnId", headerText: "Txn ID", width: "100", textAlign: "Center" },
   {
-    headerText: "Tnx Type",
+    headerText: "Txn Type",
     width: "150",
-    template: TnxTypeSymbol,
+    template: TxnTypeSymbol,
     textAlign: "Center",
   },
   {
@@ -47,8 +47,8 @@ const transactionsGrid = [
     textAlign: "Center",
   },
   {
-    field: "by",
-    headerText: "Tnx By",
+    field: "txnBy",
+    headerText: "Txn By",
     width: "130",
     textAlign: "Center",
   },
@@ -66,44 +66,16 @@ const transactionsGrid = [
   },
 ];
 
-const transactionsData = [
-  {
-    tnxId: 1001,
-    desc: "MorningPrasadam",
-    type: "OUT",
-    date: "20/12/2022",
-    by: "Tegveer Singh",
-    totalPrice: "Rs.500",
-  },
-  {
-    tnxId: 1002,
-    desc: "Ration Shopping",
-    type: "IN",
-    date: "20/12/2022",
-    by: "Tegveer Singh",
-    totalPrice: "Rs.4232",
-  },
-  {
-    tnxId: 1003,
-    desc: "Return from FFL",
-    type: "IN",
-    date: "20/12/2022",
-    by: "Tegveer Singh",
-    totalPrice: "Rs.5800",
-  },
-];
+// const transcationType = [
+//   { label: "IN", value: "IN" },
+//   { label: "OUT", value: "OUT" },
+// ];
 
-const transcationType = [
-  { label: "IN", value: "IN" },
-  { label: "OUT", value: "OUT" },
-];
-
-let selectedItems = [];
+// let selectedItems = [];
 
 const Transactions = () => {
   const { inventoryData } = useStateContext();
   const [inventoryOptions, setInventoryOptions] = useState([]);
-  // let inventoryOptions = inventoryData;
   const selectionsettings = { persistSelection: true };
   const [modalStatus, setModalStatus] = useState(false);
   const [rowsData, setRowsData] = useState({
@@ -117,33 +89,74 @@ const Transactions = () => {
       },
     ],
   });
-  const [tableData, setTableData] = useState([
-    {
-      type: "IN",
-      desc: "Something here",
-      tnxBy: "Tegveer",
-      date: "Some date",
-      totalPrice: "5000",
-    },
-  ]);
+  const [childData, setChildData] = useState([]);
+  const [parentData, setParentData] = useState([]);
 
   useEffect(() => {
-    service.getInventoryTnx();
+    service.getInventoryTnx().then((res) => {
+      console.log("Response from Transactions API:", res.data);
+      if (res.data && res.data.length > 0) {
+        let datalist = res.data;
+        let txnlist = datalist.map((item) => {
+          addChildrecords(item.attributes.txn_data, item.id);
+          return {
+            txnId: item?.id,
+            txnType: item?.attributes?.txn_type,
+            desc: item?.attributes?.desc,
+            txnBy: item?.attributes?.txn_by,
+            date: item?.attributes?.date,
+            totalPrice: calcTotalPrice(item?.attributes?.txn_data),
+          };
+        });
+        console.log("txn list:", txnlist);
+        setParentData(txnlist);
+      }
+    });
   }, []);
   useEffect(() => {
-    console.info("set called");
     setListItems();
   }, [rowsData]);
+
+  function addChildrecords(records, txnId) {
+    // console.log("%cRecords and data", "color:red", records, tnxId);
+    if (records.length > 0) {
+      records.forEach((item) => {
+        let price = parseInt(item.price);
+        let quantity = parseInt(item.quantity);
+        setChildData((prev) => [
+          ...prev,
+          {
+            itemId: item.itemId,
+            itemName: item.itemName,
+            quantity: item.quantity,
+            price: item.price,
+            sumPrice: price * quantity,
+            txnId,
+          },
+        ]);
+      });
+    }
+  }
+
+  function calcTotalPrice(data = []) {
+    if (data.length > 0) {
+      let sum = 0;
+      data.forEach((item) => {
+        let price = parseInt(item.price);
+        let qty = parseInt(item.quantity);
+        sum = sum + price * qty;
+      });
+      return sum;
+    } else {
+      return 0;
+    }
+  }
   function setListItems() {
-    console.log("Data object", rowsData.data);
     let removedItems = rowsData.data.map((item) => item.name);
-    console.log("Removable Items", removedItems);
     let itemList = inventoryData.map((item) => item.ItemName);
-    console.log("Total Items", itemList);
     itemList = itemList.filter((item) => {
       return !removedItems.includes(item);
     });
-    console.log("Removed Items", itemList);
     setInventoryOptions(itemList);
   }
 
@@ -185,7 +198,7 @@ const Transactions = () => {
         Create Transaction
       </Button>
       <GridComponent
-        dataSource={transactionsData} //TODO
+        dataSource={parentData} //TODO
         enableHover={false}
         allowPaging
         pageSettings={{ pageCount: 5 }}
@@ -201,30 +214,21 @@ const Transactions = () => {
               width: "50",
             },
             {
-              field: "name",
+              field: "itemName",
               headerText: "Item Name",
               textAlign: "Center",
               width: "100",
             },
             {
-              field: "qty",
+              field: "quantity",
               headerText: "Quantity",
               width: "80",
             },
             { field: "price", headerText: "Unit Price", width: "80" },
             { field: "sumPrice", headerText: "Sum Price", width: "100" },
           ],
-          queryString: "tnxId",
-          dataSource: [
-            {
-              tnxId: 1002,
-              itemId: 1,
-              name: "Rice",
-              qty: "50",
-              price: "40",
-              sumPrice: 2000,
-            },
-          ],
+          queryString: "txnId",
+          dataSource: childData,
         }}
       >
         <ColumnsDirective>
@@ -265,7 +269,7 @@ const Transactions = () => {
                 row
                 name="radio-buttons-group"
                 onChange={(e) => {
-                  console.log(e.target.value);
+                  // console.log(e.target.value);
                 }}
               >
                 <FormControlLabel
@@ -315,7 +319,7 @@ const Transactions = () => {
                         )}
                         value={rowsData.data[index].name}
                         onClick={(e) => {
-                          console.log(e);
+                          // console.log(e);
                         }}
                         onChange={(e, value) => {
                           // console.table(inventoryOptions);
@@ -442,7 +446,7 @@ const Transactions = () => {
               variant="contained"
               color="primary"
               onClick={() => {
-                console.log(rowsData);
+                // console.log(rowsData);
               }}
             >
               Update
