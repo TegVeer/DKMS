@@ -11,6 +11,7 @@ import {
   Toolbar,
   Sort,
   Filter,
+  DetailRow,
 } from "@syncfusion/ej2-react-grids";
 import service from "../utils/service";
 import { Header } from "../components";
@@ -236,7 +237,9 @@ const Transactions = () => {
             <ColumnDirective key={index} {...item} />
           ))}
         </ColumnsDirective>
-        <Inject services={[Page, Selection, Toolbar, Edit, Sort, Filter]} />
+        <Inject
+          services={[Page, Selection, Toolbar, Edit, Sort, Filter, DetailRow]}
+        />
       </GridComponent>
 
       {/* Model for creating Transaction */}
